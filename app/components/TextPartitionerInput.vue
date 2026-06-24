@@ -1,26 +1,20 @@
-<script setup>
+<script setup lang="ts">
+import type { ModeOption, SplitMode } from '~/composables/useTextPartitioner'
 import { modeOptions } from '~/composables/useTextPartitioner'
 
-const props = defineProps({
-  inputText: {
-    type: String,
-    required: true
-  },
-  mode: {
-    type: String,
-    required: true
-  },
-  parameter: {
-    type: Number,
-    required: true
-  },
-  activeMode: {
-    type: Object,
-    required: true
-  }
-})
+const props = defineProps<{
+  inputText: string
+  mode: SplitMode
+  parameter: number | null
+  activeMode: ModeOption
+}>()
 
-const emit = defineEmits(['update:inputText', 'update:mode', 'update:parameter', 'process'])
+const emit = defineEmits<{
+  'update:inputText': [value: string]
+  'update:mode': [value: SplitMode]
+  'update:parameter': [value: number | null]
+  process: []
+}>()
 </script>
 
 <template>

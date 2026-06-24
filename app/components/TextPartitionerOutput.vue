@@ -1,16 +1,12 @@
-<script setup>
-const props = defineProps({
-  outputChunks: {
-    type: Array,
-    required: true
-  },
-  copyState: {
-    type: String,
-    required: true
-  }
-})
+<script setup lang="ts">
+const props = defineProps<{
+  outputChunks: string[]
+  copyState: 'idle' | 'copied' | 'error'
+}>()
 
-const emit = defineEmits(['copy'])
+const emit = defineEmits<{
+  copy: []
+}>()
 
 const outputSummary = computed(() => {
   if (!props.outputChunks.length) {
