@@ -43,10 +43,10 @@ test('useTextPartitioner updates the parameter when switching to a stricter mode
   assert.equal(partitioner.activeMode.value.value, 'characters')
 })
 
-test('useTextPartitioner clears output for blank input', () => {
+test('useTextPartitioner clears output for blank or whitespace-only input', () => {
   const partitioner = useTextPartitioner()
 
-  partitioner.inputText.value = '   '
+  partitioner.inputText.value = '\t\n  '
   partitioner.outputChunks.value = ['existing chunk']
   partitioner.processText()
 

@@ -1,7 +1,7 @@
-<script setup>
-const { inputText, mode, parameter, outputChunks, activeMode, fullOutput, processText } = useTextPartitioner()
+<script setup lang="ts">
+const { inputText, mode, parameter, outputChunks, activeMode, processText } = useTextPartitioner()
 
-const copyState = ref('idle')
+const copyState = ref<'idle' | 'copied' | 'error'>('idle')
 
 useHead({
   htmlAttrs: {
@@ -19,12 +19,14 @@ watch(outputChunks, () => {
 })
 
 async function copyOutput() {
-  if (!fullOutput.value) {
+  const fullOutput = outputChunks.value.join('\n\n')
+
+  if (!fullOutput) {
     return
   }
 
   try {
-    await navigator.clipboard.writeText(fullOutput.value)
+    await navigator.clipboard.writeText(fullOutput)
     copyState.value = 'copied'
   }
   catch {

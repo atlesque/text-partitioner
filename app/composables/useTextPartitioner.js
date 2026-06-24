@@ -151,8 +151,6 @@ export function useTextPartitioner() {
   const outputChunks = ref([])
 
   const activeMode = computed(() => modeConfig[mode.value])
-  const fullOutput = computed(() => outputChunks.value.join('\n\n'))
-
   watch(mode, (nextMode) => {
     const nextConfig = modeConfig[nextMode]
 
@@ -172,7 +170,6 @@ export function useTextPartitioner() {
     parameter,
     outputChunks,
     activeMode,
-    fullOutput,
     processText
   }
 }
