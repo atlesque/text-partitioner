@@ -76,7 +76,7 @@ const emit = defineEmits(['update:inputText', 'update:mode', 'update:parameter',
             :step="props.activeMode.step"
             orientation="vertical"
             class="w-full"
-            @update:model-value="emit('update:parameter', $event ?? props.activeMode.defaultValue)"
+            @update:model-value="emit('update:parameter', $event)"
           />
         </UFormField>
       </div>

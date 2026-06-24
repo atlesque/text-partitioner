@@ -2,7 +2,35 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { nextTick } from 'vue'
 
-import { chunkByCharacters, partitionText, useTextPartitioner } from '../app/composables/useTextPartitioner.js'
+import { chunkByCharacters, chunkBySentences, getParagraphs, inferParagraphs, normalizeParagraph, partitionText, splitIntoSentences, useTextPartitioner } from '../app/composables/useTextPartitioner.js'
+
+
+test('normalizeParagraph collapses internal whitespace', () => {
+  assert.equal(normalizeParagraph('  line one\n\t line   two  '), 'line one line two')
+})
+
+test('getParagraphs drops empty paragraphs after trimming', () => {
+  assert.deepEqual(getParagraphs(' first\n\n\n second \n\n   \nthird '), [
+    'first',
+    'second',
+    'third'
+  ])
+})
+
+test('splitIntoSentences keeps punctuation-based sentence boundaries', () => {
+  assert.deepEqual(splitIntoSentences('Hello world! "Quoted question?" Last line.'), [
+    'Hello world!',
+    '"Quoted question?"',
+    'Last line.'
+  ])
+})
+
+test('chunkBySentences groups sentences by the requested size', () => {
+  assert.deepEqual(chunkBySentences('One. Two! Three? Four.', 3), [
+    'One. Two! Three?',
+    'Four.'
+  ])
+})
 
 test('sentence mode groups sentences into clean chunks', () => {
   const input = ' First sentence.  Second sentence! Third sentence?  Fourth sentence. '
@@ -20,6 +48,15 @@ test('character mode avoids splitting words when building chunks', () => {
     'alpha beta',
     'gamma delta',
     'epsilon'
+  ])
+})
+
+test('inferParagraphs preserves existing paragraphs before inferring new ones', () => {
+  const input = 'First paragraph.\n\nSecond paragraph.'
+
+  assert.deepEqual(inferParagraphs(input, 2), [
+    'First paragraph.',
+    'Second paragraph.'
   ])
 })
 

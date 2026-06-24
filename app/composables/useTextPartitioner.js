@@ -164,7 +164,6 @@ export function useTextPartitioner() {
   }
 
   return {
-    modeOptions,
     inputText,
     mode,
     parameter,
