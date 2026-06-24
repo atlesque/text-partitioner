@@ -2,8 +2,16 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { nextTick } from 'vue'
 
-import { chunkByCharacters, chunkBySentences, getParagraphs, inferParagraphs, normalizeParagraph, partitionText, splitIntoSentences, useTextPartitioner } from '../app/composables/useTextPartitioner.js'
-
+import {
+  chunkByCharacters,
+  chunkBySentences,
+  getParagraphs,
+  inferParagraphs,
+  normalizeParagraph,
+  partitionText,
+  splitIntoSentences,
+  useTextPartitioner
+} from '../app/composables/useTextPartitioner.ts'
 
 test('normalizeParagraph collapses internal whitespace', () => {
   assert.equal(normalizeParagraph('  line one\n\t line   two  '), 'line one line two')

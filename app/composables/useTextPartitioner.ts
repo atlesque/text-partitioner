@@ -1,6 +1,18 @@
 import { computed, ref, watch } from 'vue'
 
-export const modeOptions = [
+export type SplitMode = 'sentences' | 'characters' | 'auto'
+
+export interface ModeOption {
+  label: string
+  value: SplitMode
+  parameterLabel: string
+  description: string
+  min: number
+  step: number
+  defaultValue: number
+}
+
+export const modeOptions: ModeOption[] = [
   {
     label: 'Sentences per chunk',
     value: 'sentences',
@@ -30,13 +42,13 @@ export const modeOptions = [
   }
 ]
 
-export const modeConfig = Object.fromEntries(modeOptions.map(option => [option.value, option]))
+export const modeConfig = Object.fromEntries(modeOptions.map(option => [option.value, option])) as Record<SplitMode, ModeOption>
 
-export function normalizeParagraph(value) {
+export function normalizeParagraph(value: string) {
   return value.replace(/\s+/g, ' ').trim()
 }
 
-export function getParagraphs(value) {
+export function getParagraphs(value: string) {
   return value
     .replace(/\r\n?/g, '\n')
     .split(/\n\s*\n+/)
@@ -44,7 +56,7 @@ export function getParagraphs(value) {
     .filter(Boolean)
 }
 
-export function splitIntoSentences(value) {
+export function splitIntoSentences(value: string) {
   const normalized = normalizeParagraph(value)
 
   if (!normalized) {
@@ -56,14 +68,14 @@ export function splitIntoSentences(value) {
     .filter(Boolean)
 }
 
-export function chunkBySentences(value, sentencesPerChunk) {
+export function chunkBySentences(value: string, sentencesPerChunk: number) {
   const sentences = splitIntoSentences(value)
 
   if (!sentences.length) {
     return []
   }
 
-  const chunks = []
+  const chunks: string[] = []
 
   for (let index = 0; index < sentences.length; index += sentencesPerChunk) {
     chunks.push(sentences.slice(index, index + sentencesPerChunk).join(' '))
@@ -72,14 +84,14 @@ export function chunkBySentences(value, sentencesPerChunk) {
   return chunks.map(normalizeParagraph).filter(Boolean)
 }
 
-export function chunkByCharacters(value, targetSize) {
+export function chunkByCharacters(value: string, targetSize: number) {
   const words = normalizeParagraph(value).split(/\s+/).filter(Boolean)
 
   if (!words.length) {
     return []
   }
 
-  const chunks = []
+  const chunks: string[] = []
   let currentChunk = ''
 
   for (const word of words) {
@@ -101,7 +113,7 @@ export function chunkByCharacters(value, targetSize) {
   return chunks.filter(Boolean)
 }
 
-export function inferParagraphs(value, targetSentences) {
+export function inferParagraphs(value: string, targetSentences: number) {
   const paragraphs = getParagraphs(value)
 
   if (paragraphs.length > 1) {
@@ -117,7 +129,7 @@ export function inferParagraphs(value, targetSentences) {
   return chunkByCharacters(value, Math.max(targetSentences * 140, 140))
 }
 
-export function partitionText(inputText, mode, parameter) {
+export function partitionText(inputText: string, mode: SplitMode, parameter: number | null | undefined) {
   const trimmedInput = inputText.trim()
 
   if (!trimmedInput) {
@@ -129,7 +141,7 @@ export function partitionText(inputText, mode, parameter) {
   const paragraphs = getParagraphs(trimmedInput)
   const sourceBlocks = paragraphs.length > 1 ? paragraphs : [normalizeParagraph(trimmedInput)]
 
-  let chunks = []
+  let chunks: string[] = []
 
   if (mode === 'sentences') {
     chunks = sourceBlocks.flatMap(block => chunkBySentences(block, normalizedParameter))
@@ -146,15 +158,16 @@ export function partitionText(inputText, mode, parameter) {
 
 export function useTextPartitioner() {
   const inputText = ref('')
-  const mode = ref('sentences')
-  const parameter = ref(modeConfig.sentences.defaultValue)
-  const outputChunks = ref([])
+  const mode = ref<SplitMode>('sentences')
+  const parameter = ref<number | null>(modeConfig.sentences.defaultValue)
+  const outputChunks = ref<string[]>([])
 
   const activeMode = computed(() => modeConfig[mode.value])
+
   watch(mode, (nextMode) => {
     const nextConfig = modeConfig[nextMode]
 
-    if (parameter.value < nextConfig.min) {
+    if ((parameter.value ?? 0) < nextConfig.min) {
       parameter.value = nextConfig.defaultValue
     }
   })
