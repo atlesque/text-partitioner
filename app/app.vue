@@ -37,21 +37,18 @@ async function copyOutput() {
 
 <template>
   <UApp>
-    <UContainer class="py-10 sm:py-16">
-      <div class="mx-auto flex max-w-6xl flex-col gap-8">
-        <section class="space-y-3">
-          <UBadge color="primary" variant="subtle" label="Client-side Nuxt 4 tool" />
-          <div class="space-y-2">
-            <h1 class="text-3xl font-semibold tracking-tight text-highlighted sm:text-4xl">
-              Text Partitioner
-            </h1>
-            <p class="max-w-3xl text-base text-muted">
-              Paste a large text block, choose how to split it, and generate tidy paragraph-like chunks without leaving the browser.
-            </p>
-          </div>
-        </section>
+    <div class="flex h-screen flex-col overflow-hidden">
+      <div class="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-4 overflow-hidden px-4 py-4 sm:px-6">
+        <header class="shrink-0 space-y-0.5">
+          <h1 class="text-xl font-semibold tracking-tight text-highlighted">
+            Text Partitioner
+          </h1>
+          <p class="text-sm text-muted">
+            Split long text into clean, paragraph-like chunks in your browser.
+          </p>
+        </header>
 
-        <div class="grid gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
+        <div class="grid min-h-0 flex-1 gap-4 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
           <TextPartitionerInput
             v-model:input-text="inputText"
             v-model:mode="mode"
@@ -67,6 +64,6 @@ async function copyOutput() {
           />
         </div>
       </div>
-    </UContainer>
+    </div>
   </UApp>
 </template>

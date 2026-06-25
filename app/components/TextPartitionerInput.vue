@@ -18,78 +18,41 @@ const emit = defineEmits<{
 </script>
 
 <template>
-  <UCard>
-    <template #header>
-      <div class="space-y-1">
-        <h2 class="text-lg font-semibold text-highlighted">
-          Input
-        </h2>
-        <p class="text-sm text-muted">
-          Existing paragraphs are preserved where possible, and extra whitespace is cleaned up automatically.
-        </p>
-      </div>
-    </template>
+  <div class="flex h-full flex-col gap-3 overflow-hidden rounded-lg border border-(--ui-border) bg-(--ui-bg) p-4">
+    <UTextarea
+      :model-value="props.inputText"
+      placeholder="Paste or type your text here..."
+      class="flex-1"
+      :ui="{ base: 'h-full resize-none' }"
+      @update:model-value="emit('update:inputText', $event)"
+    />
 
-    <div class="space-y-6">
-      <UFormField
-        label="Text to partition"
-        description="Paste raw text, notes, transcripts, or any other large text block."
+    <div class="flex shrink-0 flex-wrap items-center gap-2">
+      <USelect
+        :model-value="props.mode"
+        :items="modeOptions"
+        value-key="value"
+        label-key="label"
+        class="min-w-0 flex-1"
+        @update:model-value="emit('update:mode', $event)"
+      />
+
+      <UInputNumber
+        :model-value="props.parameter"
+        :min="props.activeMode.min"
+        :step="props.activeMode.step"
+        orientation="vertical"
+        class="w-32 shrink-0"
+        @update:model-value="emit('update:parameter', $event)"
+      />
+
+      <UButton
+        icon="i-lucide-split"
+        class="shrink-0"
+        @click="emit('process')"
       >
-        <UTextarea
-          :model-value="props.inputText"
-          :rows="16"
-          autoresize
-          placeholder="Paste or type your text here..."
-          class="w-full"
-          @update:model-value="emit('update:inputText', $event)"
-        />
-      </UFormField>
-
-      <div class="grid gap-4 sm:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]">
-        <UFormField
-          label="Splitting mode"
-          :description="props.activeMode.description"
-        >
-          <USelect
-            :model-value="props.mode"
-            :items="modeOptions"
-            value-key="value"
-            label-key="label"
-            class="w-full"
-            @update:model-value="emit('update:mode', $event)"
-          />
-        </UFormField>
-
-        <UFormField
-          :label="props.activeMode.parameterLabel"
-          :description="`Minimum ${props.activeMode.min}`"
-        >
-          <UInputNumber
-            :model-value="props.parameter"
-            :min="props.activeMode.min"
-            :step="props.activeMode.step"
-            orientation="vertical"
-            class="w-full"
-            @update:model-value="emit('update:parameter', $event)"
-          />
-        </UFormField>
-      </div>
+        Process
+      </UButton>
     </div>
-
-    <template #footer>
-      <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <p class="text-sm text-muted">
-          Handles sentence splits with <span class="font-medium text-default">.</span>, <span class="font-medium text-default">!</span>, and <span class="font-medium text-default">?</span>
-        </p>
-
-        <UButton
-          icon="i-lucide-split"
-          size="lg"
-          @click="emit('process')"
-        >
-          Process text
-        </UButton>
-      </div>
-    </template>
-  </UCard>
+  </div>
 </template>
