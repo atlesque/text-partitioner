@@ -121,8 +121,7 @@ function handleDrop(event: DragEvent) {
         >
           <UTextarea
             :model-value="props.inputText"
-            :rows="16"
-            autoresize
+            :rows="10"
             placeholder="Paste or type your text here..."
             class="w-full"
             @update:model-value="emit('update:inputText', $event)"
