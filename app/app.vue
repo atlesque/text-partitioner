@@ -37,20 +37,8 @@ async function copyOutput() {
 
 <template>
   <UApp>
-    <UContainer class="py-10 sm:py-16">
+    <UContainer class="py-4 sm:py-8">
       <div class="mx-auto flex max-w-6xl flex-col gap-8">
-        <section class="space-y-3">
-          <UBadge color="primary" variant="subtle" label="Client-side Nuxt 4 tool" />
-          <div class="space-y-2">
-            <h1 class="text-3xl font-semibold tracking-tight text-highlighted sm:text-4xl">
-              Text Partitioner
-            </h1>
-            <p class="max-w-3xl text-base text-muted">
-              Paste a large text block, choose how to split it, and generate tidy paragraph-like chunks without leaving the browser.
-            </p>
-          </div>
-        </section>
-
         <div class="grid gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
           <TextPartitionerInput
             v-model:input-text="inputText"

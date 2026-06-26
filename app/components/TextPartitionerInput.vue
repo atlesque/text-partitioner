@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import type { ModeOption, SplitMode } from '~/composables/useTextPartitioner'
-import { modeOptions } from '~/composables/useTextPartitioner'
+import type { ModeOption, SplitMode } from '~/composables/useTextPartitioner';
+import { modeOptions } from '~/composables/useTextPartitioner';
 
 const props = defineProps<{
   inputText: string
@@ -20,13 +20,17 @@ const emit = defineEmits<{
 <template>
   <UCard>
     <template #header>
-      <div class="space-y-1">
+      <div class="flex items-center justify-between">
         <h2 class="text-lg font-semibold text-highlighted">
           Input
         </h2>
-        <p class="text-sm text-muted">
-          Existing paragraphs are preserved where possible, and extra whitespace is cleaned up automatically.
-        </p>
+        <UButton
+          icon="i-lucide-split"
+          size="sm"
+          @click="emit('process')"
+        >
+          Process text
+        </UButton>
       </div>
     </template>
 
@@ -77,19 +81,9 @@ const emit = defineEmits<{
     </div>
 
     <template #footer>
-      <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <p class="text-sm text-muted">
-          Handles sentence splits with <span class="font-medium text-default">.</span>, <span class="font-medium text-default">!</span>, and <span class="font-medium text-default">?</span>
-        </p>
-
-        <UButton
-          icon="i-lucide-split"
-          size="lg"
-          @click="emit('process')"
-        >
-          Process text
-        </UButton>
-      </div>
+      <p class="text-sm text-muted">
+        Handles sentence splits with <span class="font-medium text-default">.</span>, <span class="font-medium text-default">!</span>, and <span class="font-medium text-default">?</span>
+      </p>
     </template>
   </UCard>
 </template>
