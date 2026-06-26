@@ -1,6 +1,6 @@
 import { computed, ref, watch } from 'vue'
 
-export type SplitMode = 'sentences' | 'characters' | 'auto'
+export type SplitMode = 'sentences' | 'characters'
 
 export interface ModeOption {
   label: string
@@ -26,51 +26,32 @@ export const modeOptions: ModeOption[] = [
     label: 'Average chunk size',
     value: 'characters',
     parameterLabel: 'Average characters per chunk',
-    description: 'Create chunks near a target character length without splitting words.',
+    description: 'Create chunks near a target character length by grouping sentences.',
     min: 80,
     step: 20,
     defaultValue: 320
-  },
-  {
-    label: 'Auto paragraph cleanup',
-    value: 'auto',
-    parameterLabel: 'Target sentences per paragraph',
-    description: 'Preserve existing paragraphs or infer new ones from a continuous block.',
-    min: 1,
-    step: 1,
-    defaultValue: 4
   }
 ]
 
 export const modeConfig = Object.fromEntries(modeOptions.map(option => [option.value, option])) as Record<SplitMode, ModeOption>
 
-export function normalizeParagraph(value: string) {
+export function flattenText(value: string) {
   return value.replace(/\s+/g, ' ').trim()
 }
 
-export function getParagraphs(value: string) {
-  return value
-    .replace(/\r\n?/g, '\n')
-    .split(/\n\s*\n+/)
-    .map(normalizeParagraph)
-    .filter(Boolean)
-}
-
 export function splitIntoSentences(value: string) {
-  const normalized = normalizeParagraph(value)
+  const flattened = flattenText(value)
 
-  if (!normalized) {
+  if (!flattened) {
     return []
   }
 
-  return (normalized.match(/[^.!?]+[.!?]+(?:["')\]]+)?|[^.!?]+$/g) ?? [])
-    .map(sentence => normalizeParagraph(sentence))
+  return (flattened.match(/[^.!?]+[.!?]+(?:["')\]]+)?|[^.!?]+$/g) ?? [])
+    .map(s => s.trim())
     .filter(Boolean)
 }
 
-export function chunkBySentences(value: string, sentencesPerChunk: number) {
-  const sentences = splitIntoSentences(value)
-
+export function chunkBySentences(sentences: string[], sentencesPerChunk: number) {
   if (!sentences.length) {
     return []
   }
@@ -81,52 +62,38 @@ export function chunkBySentences(value: string, sentencesPerChunk: number) {
     chunks.push(sentences.slice(index, index + sentencesPerChunk).join(' '))
   }
 
-  return chunks.map(normalizeParagraph).filter(Boolean)
+  return chunks
 }
 
-export function chunkByCharacters(value: string, targetSize: number) {
-  const words = normalizeParagraph(value).split(/\s+/).filter(Boolean)
-
-  if (!words.length) {
+export function chunkByCharacters(sentences: string[], targetSize: number) {
+  if (!sentences.length) {
     return []
   }
 
   const chunks: string[] = []
-  let currentChunk = ''
+  let current: string[] = []
+  let currentLength = 0
 
-  for (const word of words) {
-    const candidate = currentChunk ? `${currentChunk} ${word}` : word
+  for (const sentence of sentences) {
+    const gap = current.length > 0 ? 1 : 0
+    const candidateLength = currentLength + gap + sentence.length
 
-    if (currentChunk && candidate.length > targetSize) {
-      chunks.push(currentChunk)
-      currentChunk = word
-      continue
+    if (current.length > 0 && candidateLength > targetSize) {
+      chunks.push(current.join(' '))
+      current = [sentence]
+      currentLength = sentence.length
     }
-
-    currentChunk = candidate
+    else {
+      current.push(sentence)
+      currentLength = candidateLength
+    }
   }
 
-  if (currentChunk) {
-    chunks.push(currentChunk)
+  if (current.length > 0) {
+    chunks.push(current.join(' '))
   }
 
-  return chunks.filter(Boolean)
-}
-
-export function inferParagraphs(value: string, targetSentences: number) {
-  const paragraphs = getParagraphs(value)
-
-  if (paragraphs.length > 1) {
-    return paragraphs
-  }
-
-  const sentenceChunks = chunkBySentences(value, targetSentences)
-
-  if (sentenceChunks.length > 1) {
-    return sentenceChunks
-  }
-
-  return chunkByCharacters(value, Math.max(targetSentences * 140, 140))
+  return chunks
 }
 
 export function partitionText(inputText: string, mode: SplitMode, parameter: number | null | undefined) {
@@ -138,22 +105,18 @@ export function partitionText(inputText: string, mode: SplitMode, parameter: num
 
   const activeMode = modeConfig[mode] ?? modeConfig.sentences
   const normalizedParameter = Math.max(activeMode.min, Math.round(parameter || activeMode.defaultValue))
-  const paragraphs = getParagraphs(trimmedInput)
-  const sourceBlocks = paragraphs.length > 1 ? paragraphs : [normalizeParagraph(trimmedInput)]
 
-  let chunks: string[] = []
+  const sentences = splitIntoSentences(trimmedInput)
+
+  if (!sentences.length) {
+    return []
+  }
 
   if (mode === 'sentences') {
-    chunks = sourceBlocks.flatMap(block => chunkBySentences(block, normalizedParameter))
-  }
-  else if (mode === 'characters') {
-    chunks = sourceBlocks.flatMap(block => chunkByCharacters(block, normalizedParameter))
-  }
-  else {
-    chunks = inferParagraphs(trimmedInput, normalizedParameter)
+    return chunkBySentences(sentences, normalizedParameter)
   }
 
-  return chunks.map(normalizeParagraph).filter(Boolean)
+  return chunkByCharacters(sentences, normalizedParameter)
 }
 
 export function useTextPartitioner() {
@@ -161,6 +124,7 @@ export function useTextPartitioner() {
   const mode = ref<SplitMode>('sentences')
   const parameter = ref<number | null>(modeConfig.sentences.defaultValue)
   const outputChunks = ref<string[]>([])
+  const hasProcessed = ref(false)
 
   const activeMode = computed(() => modeConfig[mode.value])
 
@@ -174,7 +138,14 @@ export function useTextPartitioner() {
 
   function processText() {
     outputChunks.value = partitionText(inputText.value, mode.value, parameter.value)
+    hasProcessed.value = true
   }
+
+  watch([mode, parameter], () => {
+    if (hasProcessed.value && inputText.value.trim()) {
+      outputChunks.value = partitionText(inputText.value, mode.value, parameter.value)
+    }
+  })
 
   return {
     inputText,

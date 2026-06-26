@@ -1,47 +1,46 @@
-import { nextTick } from 'vue'
 import { describe, expect, it } from 'vitest'
+import { nextTick } from 'vue'
 
 import {
   chunkByCharacters,
   chunkBySentences,
-  getParagraphs,
-  inferParagraphs,
-  normalizeParagraph,
+  flattenText,
   partitionText,
   splitIntoSentences,
   useTextPartitioner
 } from './useTextPartitioner'
 
 describe('useTextPartitioner', () => {
-  it('normalizeParagraph collapses internal whitespace', () => {
-    expect(normalizeParagraph('  line one\n\t line   two  ')).toBe('line one line two')
+  it('flattenText collapses all whitespace including newlines', () => {
+    expect(flattenText('  line one\n\t line   two  ')).toBe('line one line two')
   })
 
-  it('getParagraphs drops empty paragraphs after trimming', () => {
-    expect(getParagraphs(' first\n\n\n second \n\n   \nthird ')).toEqual([
-      'first',
-      'second',
-      'third'
-    ])
-  })
-
-  it('splitIntoSentences keeps punctuation-based sentence boundaries', () => {
-    expect(splitIntoSentences('Hello world! "Quoted question?" Last line.')).toEqual([
+  it('splitIntoSentences ignores newlines and keeps punctuation-based sentence boundaries', () => {
+    expect(splitIntoSentences('Hello world!\n\n"Quoted question?"\nLast line.')).toEqual([
       'Hello world!',
       '"Quoted question?"',
       'Last line.'
     ])
   })
 
+  it('splitIntoSentences handles multiline input with no punctuation at end', () => {
+    expect(splitIntoSentences('This.\nis.\nan.\nexample.')).toEqual([
+      'This.',
+      'is.',
+      'an.',
+      'example.'
+    ])
+  })
+
   it('chunkBySentences groups sentences by the requested size', () => {
-    expect(chunkBySentences('One. Two! Three? Four.', 3)).toEqual([
+    expect(chunkBySentences(['One.', 'Two!', 'Three?', 'Four.'], 3)).toEqual([
       'One. Two! Three?',
       'Four.'
     ])
   })
 
   it('sentence mode groups sentences into clean chunks', () => {
-    const input = ' First sentence.  Second sentence! Third sentence?  Fourth sentence. '
+    const input = 'First sentence.  Second sentence!\n\nThird sentence?  Fourth sentence.'
 
     expect(partitionText(input, 'sentences', 2)).toEqual([
       'First sentence. Second sentence!',
@@ -49,31 +48,29 @@ describe('useTextPartitioner', () => {
     ])
   })
 
-  it('character mode avoids splitting words when building chunks', () => {
-    const input = 'alpha beta gamma delta epsilon'
+  it('character mode groups sentences to approximate target size', () => {
+    const sentences = [
+      'Alpha beta gamma delta epsilon zeta eta theta iota kappa.',
+      'Lambda mu nu xi omicron pi rho sigma tau upsilon.',
+      'Phi chi psi omega.'
+    ]
 
-    expect(chunkByCharacters(input, 12)).toEqual([
-      'alpha beta',
-      'gamma delta',
-      'epsilon'
+    expect(chunkByCharacters(sentences, 80)).toEqual([
+      'Alpha beta gamma delta epsilon zeta eta theta iota kappa.',
+      'Lambda mu nu xi omicron pi rho sigma tau upsilon. Phi chi psi omega.'
     ])
   })
 
-  it('inferParagraphs preserves existing paragraphs before inferring new ones', () => {
-    const input = 'First paragraph.\n\nSecond paragraph.'
-
-    expect(inferParagraphs(input, 2)).toEqual([
-      'First paragraph.',
-      'Second paragraph.'
+  it('character mode handles single long sentence exceeding target', () => {
+    expect(partitionText('A very long sentence that exceeds the chunk size target by itself.', 'characters', 20)).toEqual([
+      'A very long sentence that exceeds the chunk size target by itself.'
     ])
   })
 
-  it('auto mode preserves existing paragraphs and trims whitespace', () => {
-    const input = '  First paragraph line.\n\n\n Second paragraph line.  '
-
-    expect(partitionText(input, 'auto', 4)).toEqual([
-      'First paragraph line.',
-      'Second paragraph line.'
+  it('sentence mode with count 2 on user example', () => {
+    expect(partitionText('This. is. an. example.', 'sentences', 2)).toEqual([
+      'This. is.',
+      'an. example.'
     ])
   })
 
