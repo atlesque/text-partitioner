@@ -74,14 +74,16 @@ describe('useTextPartitioner', () => {
     ])
   })
 
-  it('updates the parameter when switching to a stricter mode', async () => {
+  it('resets parameter to the new mode default when switching modes', async () => {
     const partitioner = useTextPartitioner()
 
+    partitioner.mode.value = 'sentences'
+    await nextTick()
     partitioner.parameter.value = 2
     partitioner.mode.value = 'characters'
     await nextTick()
 
-    expect(partitioner.parameter.value).toBe(320)
+    expect(partitioner.parameter.value).toBe(800)
     expect(partitioner.activeMode.value.value).toBe('characters')
   })
 

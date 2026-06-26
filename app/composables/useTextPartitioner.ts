@@ -20,7 +20,7 @@ export const modeOptions: ModeOption[] = [
     description: 'Group nearby sentences into balanced paragraph-like chunks.',
     min: 1,
     step: 1,
-    defaultValue: 3
+    defaultValue: 10
   },
   {
     label: 'Average chunk size',
@@ -29,7 +29,7 @@ export const modeOptions: ModeOption[] = [
     description: 'Create chunks near a target character length by grouping sentences.',
     min: 80,
     step: 20,
-    defaultValue: 320
+    defaultValue: 800
   }
 ]
 
@@ -121,18 +121,14 @@ export function partitionText(inputText: string, mode: SplitMode, parameter: num
 
 export function useTextPartitioner() {
   const inputText = ref('')
-  const mode = ref<SplitMode>('sentences')
-  const parameter = ref<number | null>(modeConfig.sentences.defaultValue)
+  const mode = ref<SplitMode>('characters')
+  const parameter = ref<number | null>(modeConfig.characters.defaultValue)
   const outputChunks = ref<string[]>([])
 
   const activeMode = computed(() => modeConfig[mode.value])
 
   watch(mode, (nextMode) => {
-    const nextConfig = modeConfig[nextMode]
-
-    if ((parameter.value ?? 0) < nextConfig.min) {
-      parameter.value = nextConfig.defaultValue
-    }
+    parameter.value = modeConfig[nextMode].defaultValue
   })
 
   function processText() {
