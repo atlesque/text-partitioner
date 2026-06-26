@@ -37,6 +37,7 @@ async function copyOutput() {
 
 <template>
   <UApp>
+    <NavBar />
     <UContainer class="py-4 sm:py-8">
       <div class="mx-auto flex max-w-6xl flex-col gap-8">
         <div class="grid gap-6 lg:grid-cols-2">
