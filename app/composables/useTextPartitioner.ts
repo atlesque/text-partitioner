@@ -124,7 +124,6 @@ export function useTextPartitioner() {
   const mode = ref<SplitMode>('sentences')
   const parameter = ref<number | null>(modeConfig.sentences.defaultValue)
   const outputChunks = ref<string[]>([])
-  const hasProcessed = ref(false)
 
   const activeMode = computed(() => modeConfig[mode.value])
 
@@ -138,14 +137,7 @@ export function useTextPartitioner() {
 
   function processText() {
     outputChunks.value = partitionText(inputText.value, mode.value, parameter.value)
-    hasProcessed.value = true
   }
-
-  watch([mode, parameter], () => {
-    if (hasProcessed.value && inputText.value.trim()) {
-      outputChunks.value = partitionText(inputText.value, mode.value, parameter.value)
-    }
-  })
 
   return {
     inputText,
