@@ -79,6 +79,36 @@ function handleDrop(event: DragEvent) {
     </template>
 
     <div class="space-y-6">
+      <div class="flex flex-col gap-4">
+        <UFormField
+          label="Splitting mode"
+          :description="props.activeMode.description"
+        >
+          <USelect
+            :model-value="props.mode"
+            :items="modeOptions"
+            value-key="value"
+            label-key="label"
+            class="w-full"
+            @update:model-value="emit('update:mode', $event)"
+          />
+        </UFormField>
+
+        <UFormField
+          :label="props.activeMode.parameterLabel"
+          :description="`Minimum ${props.activeMode.min}`"
+        >
+          <UInputNumber
+            :model-value="props.parameter"
+            :min="props.activeMode.min"
+            :step="props.activeMode.step"
+            orientation="vertical"
+            class="w-full"
+            @update:model-value="emit('update:parameter', $event)"
+          />
+        </UFormField>
+      </div>
+
       <UFormField
         label="Text to partition"
         description="Paste or drag &amp; drop raw text, notes, transcripts, or any other large text block."
@@ -120,36 +150,6 @@ function handleDrop(event: DragEvent) {
           </Transition>
         </div>
       </UFormField>
-
-      <div class="flex flex-col gap-4">
-        <UFormField
-          label="Splitting mode"
-          :description="props.activeMode.description"
-        >
-          <USelect
-            :model-value="props.mode"
-            :items="modeOptions"
-            value-key="value"
-            label-key="label"
-            class="w-full"
-            @update:model-value="emit('update:mode', $event)"
-          />
-        </UFormField>
-
-        <UFormField
-          :label="props.activeMode.parameterLabel"
-          :description="`Minimum ${props.activeMode.min}`"
-        >
-          <UInputNumber
-            :model-value="props.parameter"
-            :min="props.activeMode.min"
-            :step="props.activeMode.step"
-            orientation="vertical"
-            class="w-full"
-            @update:model-value="emit('update:parameter', $event)"
-          />
-        </UFormField>
-      </div>
     </div>
 
   </UCard>
