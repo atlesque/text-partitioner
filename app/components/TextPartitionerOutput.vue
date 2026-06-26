@@ -8,14 +8,6 @@ const emit = defineEmits<{
   copy: []
 }>()
 
-const outputSummary = computed(() => {
-  if (!props.outputChunks.length) {
-    return 'Your partitioned text will appear here.'
-  }
-
-  const count = props.outputChunks.length
-  return `${count} chunk${count === 1 ? '' : 's'} ready`
-})
 </script>
 
 <template>
@@ -26,9 +18,6 @@ const outputSummary = computed(() => {
           <h2 class="text-lg font-semibold text-highlighted">
             Output
           </h2>
-          <p class="text-sm text-muted">
-            {{ outputSummary }}
-          </p>
         </div>
 
         <UButton
@@ -36,9 +25,10 @@ const outputSummary = computed(() => {
           :color="props.copyState === 'error' ? 'error' : 'neutral'"
           :icon="props.copyState === 'copied' ? 'i-lucide-check' : 'i-lucide-copy'"
           variant="soft"
+          size="sm"
           @click="emit('copy')"
         >
-          {{ props.copyState === 'copied' ? 'Copied' : props.copyState === 'error' ? 'Copy failed' : 'Copy full output' }}
+          {{ props.copyState === 'copied' ? 'Copied' : props.copyState === 'error' ? 'Copy failed' : 'Copy output' }}
         </UButton>
       </div>
     </template>

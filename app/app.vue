@@ -39,7 +39,7 @@ async function copyOutput() {
   <UApp>
     <UContainer class="py-4 sm:py-8">
       <div class="mx-auto flex max-w-6xl flex-col gap-8">
-        <div class="grid gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
+        <div class="grid gap-6 lg:grid-cols-2">
           <TextPartitionerInput
             v-model:input-text="inputText"
             v-model:mode="mode"

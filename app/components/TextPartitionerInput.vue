@@ -49,7 +49,7 @@ const emit = defineEmits<{
         />
       </UFormField>
 
-      <div class="grid gap-4 sm:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]">
+      <div class="flex flex-col gap-4">
         <UFormField
           label="Splitting mode"
           :description="props.activeMode.description"
@@ -80,10 +80,5 @@ const emit = defineEmits<{
       </div>
     </div>
 
-    <template #footer>
-      <p class="text-sm text-muted">
-        Handles sentence splits with <span class="font-medium text-default">.</span>, <span class="font-medium text-default">!</span>, and <span class="font-medium text-default">?</span>
-      </p>
-    </template>
   </UCard>
 </template>
