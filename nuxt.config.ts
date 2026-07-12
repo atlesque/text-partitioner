@@ -5,5 +5,12 @@ export default defineNuxtConfig({
   ssr: false,
   modules: ['@nuxt/ui'],
   css: ['~/assets/css/main.css'],
-  devServer: { port: 8040 }
+  devServer: { port: 8040 },
+  app: {
+    head: {
+      link: [
+        { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
+      ],
+    },
+  },
 })
