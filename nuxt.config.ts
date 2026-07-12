@@ -7,8 +7,16 @@ export default defineNuxtConfig({
   devServer: { port: 8040 },
   app: {
     head: {
+      htmlAttrs: {
+        lang: 'en',
+      },
+      title: 'Text Partitioner',
+      meta: [
+        { name: 'description', content: 'Split long text into clean, paragraph-like chunks in your browser.' },
+      ],
       link: [
         { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
+        { rel: 'alternate icon', href: '/favicon.ico' },
       ],
     },
   },

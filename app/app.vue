@@ -3,21 +3,6 @@ const { inputText, mode, parameter, outputChunks, activeMode, processText } = us
 
 const copyState = ref<'idle' | 'copied' | 'error'>('idle')
 
-useHead({
-  htmlAttrs: {
-    lang: 'en'
-  },
-  link: [
-    { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
-    { rel: 'alternate icon', href: '/favicon.ico' }
-  ]
-})
-
-useSeoMeta({
-  title: 'Text Partitioner',
-  description: 'Split long text into clean, paragraph-like chunks in your browser.'
-})
-
 watch(outputChunks, () => {
   copyState.value = 'idle'
 })
