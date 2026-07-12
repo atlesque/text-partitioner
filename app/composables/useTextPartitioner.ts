@@ -1,5 +1,3 @@
-import { computed, ref, watch } from 'vue'
-
 export type SplitMode = 'sentences' | 'characters'
 
 export interface ModeOption {
